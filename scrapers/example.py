@@ -1,6 +1,19 @@
-from scrapling.fetchers import Fetcher
-
 import config
+
+
+def get_fetcher():
+    """Return the fetcher class based on config.FETCHER (http|dynamic|stealthy)."""
+    if config.FETCHER == "stealthy":
+        from scrapling.fetchers import StealthyFetcher
+
+        return StealthyFetcher
+    if config.FETCHER == "dynamic":
+        from scrapling.fetchers import DynamicFetcher
+
+        return DynamicFetcher
+    from scrapling.fetchers import Fetcher
+
+    return Fetcher
 
 
 def scrape_page(url, selector="title::text", items=None):
@@ -10,7 +23,7 @@ def scrape_page(url, selector="title::text", items=None):
     Returns a dict with status, url, and extracted data.
     """
     headers = {"User-Agent": config.USER_AGENT or "scrapemaxxer/0.1"}
-    resp = Fetcher.get(url, timeout=config.TIMEOUT, headers=headers)
+    resp = get_fetcher().get(url, timeout=config.TIMEOUT, headers=headers)
     if resp.status >= 400:
         raise RuntimeError(f"Request failed: HTTP {resp.status}")
 
