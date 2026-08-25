@@ -1,3 +1,4 @@
 scrapling[ai]>=0.4.15
+python-dotenv>=1.0
 # macOS 12 (Intel): cryptography >=49 lacks a cp314 wheel and builds from source (very slow)
 cryptography<49
