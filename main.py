@@ -43,6 +43,7 @@ def main():
     p.add_argument("--user-agent", dest="user_agent", help="Custom User-Agent (overrides USER_AGENT)")
     p.add_argument("--timeout", type=int, help="Request timeout in seconds (overrides REQUEST_TIMEOUT)")
     p.add_argument("--delay", type=float, help="Sleep after request (overrides REQUEST_DELAY)")
+    p.add_argument("--solve-cf", action="store_true", help="Solve Cloudflare challenge (stealthy only)")
     p.add_argument("--output-dir", dest="output_dir", help="Output dir (overrides OUTPUT_DIR)")
     args = p.parse_args()
 
@@ -62,6 +63,7 @@ def main():
         fetcher=args.fetcher,
         user_agent=args.user_agent,
         timeout=args.timeout,
+        solve_cf=args.solve_cf,
     )
 
     out = Path(args.output) if args.output else outdir / f"{urlparse(args.url).netloc.replace(':','_')}.json"
