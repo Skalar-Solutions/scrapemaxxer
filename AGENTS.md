@@ -13,5 +13,7 @@
 
 ## Usage
 - CLI: `python main.py <url> [-s selector] [-i name=selector] [-o file]`
+- Profil preset: `python main.py <url> --profile seo|geo|aeo|all [--solve-cf]`
+- Test: `python test_extractor.py` (assert-based, no framework)
 - Pilih fetcher via `FETCHER=http|dynamic|stealthy` di `.env`.
 - Hasil scrape masuk `output/` (gitignored).

@@ -12,24 +12,29 @@ PROFILES = {
     "seo": {
         "title": "title::text",
         "desc": "meta[name=description]::attr(content)",
-        "headings": "h1,h2,h3::text",
+        "headings": "h1,h2,h3",
         "canonical": "link[rel=canonical]::attr(href)",
         "jsonld": 'script[type="application/ld+json"]::text',
-        "main": "main::text",
+        "main": "main",
     },
     "geo": {
-        "answer": "main::text",
-        "list": "ul li::text",
-        "table": "table::text",
+        "list": "ul li",
+        "table": "table",
         "datetime": "time::attr(datetime)",
     },
     "aeo": {
-        "first_p": "p:first-of-type::text",
-        "dl": "dl dt,dd::text",
-        "ol": "ol li::text",
+        "first_p": "p:first-of-type",
+        "dl": "dt::text,dd::text",
+        "ol": "ol li",
     },
 }
 PROFILES["all"] = {k: v for prof in PROFILES.values() for k, v in prof.items()}
+
+
+def save_output(path, result):
+    # encoding is mandatory: without it write_text uses the OS locale (cp1252 on
+    # Windows) and smart quotes/em dashes become mojibake for any UTF-8 reader
+    path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def main():
@@ -67,7 +72,7 @@ def main():
     )
 
     out = Path(args.output) if args.output else outdir / f"{urlparse(args.url).netloc.replace(':','_')}.json"
-    out.write_text(json.dumps(result, indent=2, ensure_ascii=False))
+    save_output(out, result)
 
     if args.delay is not None or config.DELAY:
         time.sleep(args.delay if args.delay is not None else config.DELAY)

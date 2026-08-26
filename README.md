@@ -95,7 +95,31 @@ python main.py <url> [-s SELECTOR] [-i NAME=SELECTOR ...] [-o FILE]
 | `url` | — | Target URL (positional, required) |
 | `-s, --selector` | `title::text` | Main CSS selector (Scrapling pseudo-elements supported) |
 | `-i, --item` | — | Extra named selector, repeatable: `-i name=css` |
+| `--profile` | — | Preset selector pack: `seo`, `geo`, `aeo`, or `all` (merged with `-i`, yours wins) |
+| `--solve-cf` | — | Solve Cloudflare Turnstile/interstitial challenges (`stealthy` only) |
 | `-o, --output` | `output/<domain>.json` | Output file path |
+
+Output is written as UTF-8 (required — Windows otherwise encodes non-ASCII as cp1252 and smart quotes become `�`).
+
+### Profiles
+
+One-shot extraction for SEO / GEO / AEO research:
+
+```bash
+python main.py https://site.com --profile all
+```
+
+| Profile | Fields | Purpose |
+|---|---|---|
+| `seo` | `title`, `desc`, `headings`, `canonical`, `jsonld`, `main` | Ranking, indexing, snippets |
+| `geo` | `list`, `table`, `datetime` | Content AI engines (ChatGPT/Perplexity) can quote |
+| `aeo` | `first_p`, `dl`, `ol` | Featured-snippet / answer-style content |
+
+On every profile with `jsonld`, two extra fields are added:
+- `schema_types` — every `@type` found in the page's JSON-LD (e.g. `Organization`, `WebSite`, `FAQPage`).
+- `answer` — answers extracted from `FAQPage` `mainEntity` JSON-LD (empty when the page has no FAQ schema).
+
+Field semantics: plain element selectors (`main`, `table`, `h1,h2,h3`, `ul li`) return each element's full descendant text; `::text` / `::attr()` selectors return raw matches. If a field is empty on a site, the page probably just doesn't use that element — semantic tags are rare in page-builder sites.
 
 The underlying scraper is also importable as a library:
 
@@ -157,9 +181,18 @@ main.py               # CLI entry point
 config.py             # settings loader (.env)
 scrapers/             # scraper modules (see scrapers/example.py)
   example.py          # core scrape_page() + fetcher selection
+test_extractor.py     # assert-based self-check: python test_extractor.py
 output/               # scrape results (gitignored, keeps only .gitkeep)
 opencode.json         # MCP server registration
 ```
+
+## Testing
+
+```bash
+python test_extractor.py
+```
+
+Runs assert-based checks (no framework) covering selector extraction (element vs pseudo), JSON-LD `schema_types` / FAQ `answer` parsing, and UTF-8 output round-trip.
 
 ## Platform Notes
 
