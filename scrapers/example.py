@@ -37,5 +37,6 @@ def scrape_page(url, selector="title::text", items=None, fetcher=None, user_agen
     data = {selector: resp.css(selector).getall()}
     for label, sel in (items or {}).items():
         data[label] = resp.css(sel).getall()
+    data = {k: [v for v in vals if str(v).strip()] for k, vals in data.items()}
 
     return {"url": url, "status": resp.status, "data": data}
