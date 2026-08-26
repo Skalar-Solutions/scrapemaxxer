@@ -106,9 +106,16 @@ def scrape_page(url, selector="title::text", items=None, fetcher=None, user_agen
     """
     headers = {"User-Agent": user_agent or config.USER_AGENT or "scrapemaxxer/0.1"}
     cls = get_fetcher(fetcher)
-    # http Fetcher uses .get(); browser fetchers use .fetch() on an instance
+    # http Fetcher uses .get() (timeout in seconds); browser fetchers use
+    # .fetch() as classmethods with timeout in milliseconds
     if cls is not Fetcher and getattr(cls, "get", None) is None:
-        resp = cls().fetch(url, timeout=timeout or config.TIMEOUT, headers=headers, solve_cloudflare=solve_cf)
+        kwargs = {
+            "timeout": (timeout or config.TIMEOUT) * 1000,
+            "extra_headers": headers,
+        }
+        if cls.__name__ == "StealthyFetcher":
+            kwargs["solve_cloudflare"] = solve_cf
+        resp = cls.fetch(url, **kwargs)
     else:
         resp = cls.get(url, timeout=timeout or config.TIMEOUT, headers=headers)
     if resp.status >= 400:
